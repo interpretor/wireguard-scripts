@@ -12,7 +12,7 @@ read address
 echo "Enter the listening port of the Wireguard interface (e.g. 51820)"
 read port
 
-echo "Enter the DNS server (e.g. 9.9.9.9)"
+echo "Enter the DNS server (optional) (e.g. 9.9.9.9)"
 read dns
 
 echo "Enter the endpoint domain or IP (e.g. wg.domain.tld)"
@@ -44,7 +44,9 @@ echo "" >> $conf
 echo "[Interface]" >> $clients_conf
 echo "PrivateKey =" >> $clients_conf
 echo "Address =" >> $clients_conf
-echo "DNS = ${dns}" >> $clients_conf
+if [ ! -z "$dns" ]; then
+  echo "DNS = ${dns}" >> $clients_conf
+fi
 echo "" >> $clients_conf
 
 echo "[Peer]" >> $clients_conf
