@@ -1,16 +1,16 @@
 #!/bin/bash
 
-path=$(dirname $(readlink -f $0))
-dir=${path##*/}
-iface=${dir%-*}
+path="$(dirname "$(readlink -f $0)")"
+dir="${path##*/}"
+iface="${dir%-*}"
 
-wg_dir=${path%/*}
+wg_dir="${path%/*}"
 wg_conf="${wg_dir}/${iface}.conf"
 
-address=$(grep 'Address' $wg_conf | awk '{print $3}')
-subnet=${address#*/}
+address="$(grep 'Address' "$wg_conf" | awk '{print $3}')"
+subnet="${address#*/}"
 
-last_client_address=$(grep 'AllowedIPs' $wg_conf | tail -1 | awk '{print $3}')
+last_client_address="$(grep 'AllowedIPs' "$wg_conf" | tail -1 | awk '{print $3}')"
 
 client="${1%/}"
 
@@ -30,7 +30,7 @@ if [ "$subnet" != "24" ]; then
   exit 1
 fi
 
-existing_client=$(grep "# ${client}" $wg_conf)
+existing_client="$(grep "# ${client}" $wg_conf)"
 
 if [ ! -z "$existing_client" ]; then
   echo "A client with the name ${client} already exists!" >&2
@@ -40,8 +40,8 @@ fi
 if [ -z "$last_client_address" ]; then
   client_number=2
 else
-  last_client_ip=${last_client_address%/*}
-  client_number=$((${last_client_ip##*.} + 1))
+  last_client_ip="${last_client_address%/*}"
+  client_number=$(("${last_client_ip##*.}" + 1))
 
   if (( $client_number > 254 )); then
     echo "Maximum number of clients reached (253)!" >&2
@@ -51,25 +51,28 @@ fi
 
 umask 077
 
-mkdir $target
+mkdir "$target"
 
 umask 177
 
-wg genkey | tee $privkey | wg pubkey > $pubkey
-wg genpsk > $psk
+wg genkey | tee "$privkey" | wg pubkey > "$pubkey"
+wg genpsk > "$psk"
 
-cp base.conf $conf
+cp base.conf "$conf"
 
-sed -i "s@PrivateKey =.*@PrivateKey = $(<$privkey)@" $conf
-sed -i "s@PresharedKey =.*@PresharedKey = $(<$psk)@" $conf
-sed -i "s@Address =.*@Address = ${address%.*}.${client_number}/${subnet}@" $conf
+sed -i "s@PrivateKey =.*@PrivateKey = $(<$privkey)@" "$conf"
+sed -i "s@PresharedKey =.*@PresharedKey = $(<$psk)@" "$conf"
+sed -i "s@Address =.*@Address = ${address%.*}.${client_number}/${subnet}@" "$conf"
 
-echo "# ${client}" >> $wg_conf
-echo "[Peer]" >> $wg_conf
-echo "PublicKey = $(<$pubkey)" >> $wg_conf
-echo "PresharedKey = $(<$psk)" >> $wg_conf
-echo "AllowedIPs = ${address%.*}.${client_number}/32" >> $wg_conf
+echo "# ${client}" >> "$wg_conf"
+echo "[Peer]" >> "$wg_conf"
+echo "PublicKey = $(<$pubkey)" >> "$wg_conf"
+echo "PresharedKey = $(<$psk)" >> "$wg_conf"
+echo "AllowedIPs = ${address%.*}.${client_number}/32" >> "$wg_conf"
 
-echo "The client with the name ${client} has been created. Don't forget to restart the ${iface} service."
+"${path}/client_show_qr.sh" "$client"
+
+echo -e "\nThe client with the name ${client} has been created. Don't forget to restart the ${iface} service."
 
 exit 0
+

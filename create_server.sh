@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path=$(dirname $(readlink -f $0))
+path="$(dirname "$(readlink -f $0)")"
 scripts="${path}/scripts"
 
 echo "Enter the Wireguard interface name (e.g. wg0)"
@@ -29,34 +29,34 @@ clients_conf="${clients_path}/base.conf"
 
 umask 077
 
-mkdir $clients_path
+mkdir "$clients_path"
 
 umask 177
 
-wg genkey | tee $privkey | wg pubkey > $pubkey
+wg genkey | tee "$privkey" | wg pubkey > "$pubkey"
 
-echo "[Interface]" >> $conf
-echo "PrivateKey = $(<$privkey)" >> $conf
-echo "Address = ${address%.*}.1/24" >> $conf
-echo "ListenPort = ${port}" >> $conf
-echo "" >> $conf
+echo "[Interface]" >> "$conf"
+echo "PrivateKey = $(<$privkey)" >> "$conf"
+echo "Address = ${address%.*}.1/24" >> "$conf"
+echo "ListenPort = ${port}" >> "$conf"
+echo "" >> "$conf"
 
-echo "[Interface]" >> $clients_conf
-echo "PrivateKey =" >> $clients_conf
-echo "Address =" >> $clients_conf
+echo "[Interface]" >> "$clients_conf"
+echo "PrivateKey =" >> "$clients_conf"
+echo "Address =" >> "$clients_conf"
 if [ ! -z "$dns" ]; then
-  echo "DNS = ${dns}" >> $clients_conf
+  echo "DNS = ${dns}" >> "$clients_conf"
 fi
-echo "" >> $clients_conf
+echo "" >> "$clients_conf"
 
-echo "[Peer]" >> $clients_conf
-echo "PublicKey = $(<$pubkey)" >> $clients_conf
-echo "PresharedKey =" >> $clients_conf
-echo "Endpoint = ${endpoint}:${port}" >> $clients_conf
-echo "AllowedIPs = ${allowed_ips}" >> $clients_conf
+echo "[Peer]" >> "$clients_conf"
+echo "PublicKey = $(<$pubkey)" >> "$clients_conf"
+echo "PresharedKey =" >> "$clients_conf"
+echo "Endpoint = ${endpoint}:${port}" >> "$clients_conf"
+echo "AllowedIPs = ${allowed_ips}" >> "$clients_conf"
 
 umask 077
 
-cp $scripts/* $clients_path
+cp "$scripts"/* "$clients_path"
 
 exit 0
