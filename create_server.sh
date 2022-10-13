@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path="$(dirname "$(readlink -f $0)")"
+path="$(dirname "$(readlink -f "$0")")"
 scripts="${path}/scripts"
 
 echo "Enter the Wireguard interface name (e.g. wg0)"

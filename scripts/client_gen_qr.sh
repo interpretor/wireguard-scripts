@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path="$(dirname "$(readlink -f $0)")"
+path="$(dirname "$(readlink -f "$0")")"
 
 client="${1%/}"
 
