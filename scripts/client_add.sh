@@ -30,7 +30,7 @@ if [ "$subnet" != "24" ]; then
   exit 1
 fi
 
-existing_client="$(grep "# ${client}" $wg_conf)"
+existing_client="$(grep "# ${client}" "$wg_conf")"
 
 if [ ! -z "$existing_client" ]; then
   echo "A client with the name ${client} already exists!" >&2
@@ -70,9 +70,8 @@ echo "PublicKey = $(<$pubkey)" >> "$wg_conf"
 echo "PresharedKey = $(<$psk)" >> "$wg_conf"
 echo "AllowedIPs = ${address%.*}.${client_number}/32" >> "$wg_conf"
 
-"${path}/client_show_qr.sh" "$client"
+"${path}/client_gen_qr.sh" "$client"
 
 echo -e "\nThe client with the name ${client} has been created. Don't forget to restart the ${iface} service."
 
 exit 0
-
